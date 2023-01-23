@@ -24,6 +24,17 @@ func (h *Handler) unmarshalCaddyfileComplexity(d *caddyfile.Dispenser) error {
 				}
 
 				disabled = !v
+			case "xss_check_enabled":
+				if !d.NextArg() {
+					return d.ArgErr()
+				}
+
+				v, err := strconv.ParseBool(d.Val())
+				if err != nil {
+					return err
+				}
+
+				complexity.XSSCheckEnabled = v
 			case "max_depth":
 				if !d.NextArg() {
 					return d.ArgErr()

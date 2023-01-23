@@ -44,6 +44,7 @@ route {
         fetch_schema_interval {$GBOX_FETCH_SCHEMA_INTERVAL:10m}
         complexity {
             enabled {$GBOX_ENABLED_COMPLEXITY:true}
+            xss_check_enabled {$GBOX_XSS_CHECK_ENABLED:true}
             node_count_limit {$GBOX_NODE_COUNT_LIMIT:60}
             max_complexity {$GBOX_MAX_COMPLEXITY:60}
             max_depth {$GBOX_MAX_DEPTH:15}

@@ -2,6 +2,7 @@ package gbox
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/jensneuse/graphql-go-tools/pkg/graphql"
 )
@@ -9,6 +10,9 @@ import (
 type Complexity struct {
 	// Max query depth accept, disabled by default.
 	MaxDepth int `json:"max_depth,omitempty"`
+
+	// enabled cheking html and javascript tags into queries
+	XSSCheckEnabled bool `json:"xss_check_enabled,omitempty"`
 
 	// Query node count limit, disabled by default.
 	NodeCountLimit int `json:"node_count_limit,omitempty"`
@@ -24,7 +28,13 @@ func (c *Complexity) validateRequest(s *graphql.Schema, r *graphql.Request) (req
 
 		return requestErrors
 	}
-
+	if c.XSSCheckEnabled {
+		re := regexp.MustCompile(`<[a-z][\s\S]*>`)
+		matches := re.FindAllString(r.Query, -1)
+		if len(matches) > 0 {
+			requestErrors = append(requestErrors, graphql.RequestError{Message: "Potential XSS attack detected in input"})
+		}
+	}
 	if c.MaxDepth > 0 && result.Depth > c.MaxDepth {
 		requestErrors = append(requestErrors, graphql.RequestError{Message: fmt.Sprintf("query max depth is %d, current %d", c.MaxDepth, result.Depth)})
 	}
