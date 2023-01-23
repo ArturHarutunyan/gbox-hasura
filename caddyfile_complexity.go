@@ -34,7 +34,7 @@ func (h *Handler) unmarshalCaddyfileComplexity(d *caddyfile.Dispenser) error {
 					return err
 				}
 
-				complexity.XssCheckEnabled = v
+				complexity.XSSCheckEnabled = v
 			case "max_depth":
 				if !d.NextArg() {
 					return d.ArgErr()

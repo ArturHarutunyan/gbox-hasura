@@ -12,7 +12,7 @@ type Complexity struct {
 	MaxDepth int `json:"max_depth,omitempty"`
 
 	// enabled cheking html and javascript tags into queries
-	XssCheckEnabled bool `json:"xss_check_enabled,omitempty"`
+	XSSCheckEnabled bool `json:"xss_check_enabled,omitempty"`
 
 	// Query node count limit, disabled by default.
 	NodeCountLimit int `json:"node_count_limit,omitempty"`
@@ -28,7 +28,7 @@ func (c *Complexity) validateRequest(s *graphql.Schema, r *graphql.Request) (req
 
 		return requestErrors
 	}
-	if c.XssCheckEnabled {
+	if c.XSSCheckEnabled {
 		re := regexp.MustCompile(`<[a-z][\s\S]*>`)
 		matches := re.FindAllString(r.Query, -1)
 		if len(matches) > 0 {
