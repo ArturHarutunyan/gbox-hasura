@@ -2,6 +2,7 @@ package gbox
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -91,47 +92,48 @@ func (h *Handler) GraphQLHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gqlRequest, err := h.unmarshalHTTPRequest(r)
+	gqlRequests, err := h.unmarshalHTTPRequest(r)
 	if err != nil {
 		h.logger.Debug("can not unmarshal graphql request from http request", zap.Error(err))
 		reporter.error = writeResponseErrors(err, w)
 
 		return
 	}
-
-	if err = h.validateGraphqlRequest(gqlRequest); err != nil {
-		reporter.error = writeResponseErrors(err, w)
-
-		return
-	}
-
-	h.addMetricsBeginRequest(gqlRequest)
-	defer func(startedAt time.Time) {
-		h.addMetricsEndRequest(gqlRequest, time.Since(startedAt))
-	}(time.Now())
-
 	n := r.Context().Value(nextHandlerCtxKey).(caddyhttp.Handler)
 
-	if h.Caching != nil {
-		cachingRequest := newCachingRequest(r, h.schemaDocument, h.schema, gqlRequest)
-		reverse := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-			return h.ReverseProxy.ServeHTTP(w, r, n)
-		})
-
-		if err = h.Caching.HandleRequest(w, cachingRequest, reverse); err != nil {
+	for _, gqlRequest := range *gqlRequests {
+		if err = h.validateGraphqlRequest(&gqlRequest); err != nil {
 			reporter.error = writeResponseErrors(err, w)
 
 			return
 		}
 
-		return
+		h.addMetricsBeginRequest(&gqlRequest)
+		defer func(startedAt time.Time) {
+			h.addMetricsEndRequest(&gqlRequest, time.Since(startedAt))
+		}(time.Now())
+		// TODO handle caching
+		if h.Caching != nil {
+			cachingRequest := newCachingRequest(r, h.schemaDocument, h.schema, &gqlRequest)
+			reverse := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+				return h.ReverseProxy.ServeHTTP(w, r, n)
+			})
+
+			if err = h.Caching.HandleRequest(w, cachingRequest, reverse); err != nil {
+				reporter.error = writeResponseErrors(err, w)
+
+				return
+			}
+
+			return
+		}
 	}
 
 	reporter.error = h.ReverseProxy.ServeHTTP(w, r, n)
 }
 
-func (h *Handler) unmarshalHTTPRequest(r *http.Request) (*graphql.Request, error) {
-	gqlRequest := new(graphql.Request)
+func (h *Handler) unmarshalHTTPRequest(r *http.Request) (*[]graphql.Request, error) {
+	gqlRequests := make([]graphql.Request, 0)
 	rawBody, _ := ioutil.ReadAll(r.Body)
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(rawBody))
 	copyHTTPRequest, err := http.NewRequest(r.Method, r.URL.String(), ioutil.NopCloser(bytes.NewBuffer(rawBody))) // nolint:noctx
@@ -139,15 +141,30 @@ func (h *Handler) unmarshalHTTPRequest(r *http.Request) (*graphql.Request, error
 		return nil, err
 	}
 
-	if err = graphql.UnmarshalHttpRequest(copyHTTPRequest, gqlRequest); err != nil {
+	requestBytes, err := ioutil.ReadAll(copyHTTPRequest.Body)
+	if err != nil {
 		return nil, err
 	}
 
-	if err = normalizeGraphqlRequest(h.schema, gqlRequest); err != nil {
-		return nil, err
+	if len(requestBytes) == 0 {
+		return nil, graphql.ErrEmptyRequest
 	}
 
-	return gqlRequest, nil
+	if err = json.Unmarshal(requestBytes, &gqlRequests); err != nil {
+		var gqlRequest graphql.Request
+		if e := json.Unmarshal(requestBytes, &gqlRequest); e != nil {
+			return nil, e
+		}
+		gqlRequests = append(gqlRequests, gqlRequest)
+	}
+	for index, request := range gqlRequests {
+		if err = normalizeGraphqlRequest(h.schema, &request); err != nil {
+			return nil, err
+		}
+		gqlRequests[index] = request
+	}
+
+	return &gqlRequests, nil
 }
 
 func (h *Handler) validateGraphqlRequest(r *graphql.Request) error {
