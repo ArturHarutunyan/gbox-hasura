@@ -7,3 +7,4 @@ charts/gbox/charts
 
 .idea
 .DS_Store
+cmd/build
