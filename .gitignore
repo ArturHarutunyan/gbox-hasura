@@ -4,3 +4,6 @@ docker-compose.override.yml
 # Release
 dist
 charts/gbox/charts
+
+.idea
+.DS_Store
