@@ -34,6 +34,7 @@ func (c *Complexity) validateRequest(s *graphql.Schema, r *graphql.Request) (req
 		if len(matches) > 0 {
 			requestErrors = append(requestErrors, graphql.RequestError{Message: "Potential XSS attack detected in input"})
 		}
+
 	}
 	if c.MaxDepth > 0 && result.Depth > c.MaxDepth {
 		requestErrors = append(requestErrors, graphql.RequestError{Message: fmt.Sprintf("query max depth is %d, current %d", c.MaxDepth, result.Depth)})
