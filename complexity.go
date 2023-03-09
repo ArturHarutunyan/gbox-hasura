@@ -32,7 +32,7 @@ func (c *Complexity) validateRequest(s *graphql.Schema, r *graphql.Request) (req
 		re := regexp.MustCompile(`<[a-z][\s\S]*>`)
 		matches := re.FindAllString(r.Query, -1)
 		if len(matches) > 0 {
-			requestErrors = append(requestErrors, graphql.RequestError{Message: fmt.Sprintf("Potential XSS attack detected in input")})
+			requestErrors = append(requestErrors, graphql.RequestError{Message: "Potential XSS attack detected in input"})
 		}
 
 	}
