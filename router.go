@@ -13,9 +13,9 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/gbox-proxy/gbox/admin"
 	"github.com/gbox-proxy/gbox/admin/generated"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jensneuse/graphql-go-tools/pkg/graphql"
+	"github.com/rs/cors"
 	"go.uber.org/zap"
 )
 
@@ -59,12 +59,14 @@ func (h *Handler) initRouter() {
 
 		return
 	}
+	corsHeaders := cors.New(cors.Options{
+		AllowCredentials: true,
+		AllowedOrigins:   h.CORSOrigins,
+		AllowedHeaders:   h.CORSAllowedHeaders,
+	})
 
-	h.router = handlers.CORS(
-		handlers.AllowCredentials(),
-		handlers.AllowedOrigins(h.CORSOrigins),
-		handlers.AllowedHeaders(h.CORSAllowedHeaders),
-	)(router)
+	h.router = corsHeaders.Handler(router)
+
 }
 
 // GraphQLOverWebsocketHandle handling websocket connection between client & upstream.
@@ -168,11 +170,11 @@ func (h *Handler) unmarshalHTTPRequest(r *http.Request) (*[]graphql.Request, err
 }
 
 func (h *Handler) validateGraphqlRequest(r *graphql.Request) error {
-	isIntrospectQuery, _ := r.IsIntrospectionQuery()
+	// isIntrospectQuery, _ := r.IsIntrospectionQuery()
 
-	if isIntrospectQuery && h.DisabledIntrospection {
-		return ErrNotAllowIntrospectionQuery
-	}
+	// if isIntrospectQuery && h.DisabledIntrospection {
+	// 	return ErrNotAllowIntrospectionQuery
+	// }
 
 	if h.Complexity != nil {
 		requestErrors := h.Complexity.validateRequest(h.schema, r)

@@ -119,6 +119,7 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/qri-io/jsonpointer v0.1.1 // indirect
 	github.com/qri-io/jsonschema v0.2.1 // indirect
+	github.com/rs/cors v1.8.3 // indirect
 	github.com/rs/xid v1.2.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
