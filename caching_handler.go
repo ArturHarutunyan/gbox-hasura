@@ -22,14 +22,16 @@ func (c *Caching) HandleRequest(w http.ResponseWriter, r *cachingRequest, h cadd
 	// Remove `accept-encoding` header to prevent response body encoded when forward request to upstream
 	// encode directive had read this header, safe to delete it.
 	r.httpRequest.Header.Del("accept-encoding")
-	operationType, _ := r.gqlRequest.OperationType()
+	for _, request := range *r.gqlRequest {
+		operationType, _ := request.OperationType()
 
-	// nolint:exhaustive
-	switch operationType {
-	case graphql.OperationTypeQuery:
-		return c.handleQueryRequest(w, r, h)
-	case graphql.OperationTypeMutation:
-		return c.handleMutationRequest(w, r, h)
+		// nolint:exhaustive
+		switch operationType {
+		case graphql.OperationTypeQuery:
+			return c.handleQueryRequest(w, r, h)
+		case graphql.OperationTypeMutation:
+			return c.handleMutationRequest(w, r, h)
+		}
 	}
 
 	return ErrHandleUnknownOperationTypeError

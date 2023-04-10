@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -116,23 +117,23 @@ func (h *Handler) GraphQLHandle(w http.ResponseWriter, r *http.Request) {
 		defer func(startedAt time.Time) {
 			h.addMetricsEndRequest(&gqlRequest, time.Since(startedAt))
 		}(time.Now())
-		// TODO handle caching
-		if h.Caching != nil {
-			cachingRequest := newCachingRequest(r, h.schemaDocument, h.schema, &gqlRequest)
-			reverse := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-				return h.ReverseProxy.ServeHTTP(w, r, n)
-			})
 
-			if err = h.Caching.HandleRequest(w, cachingRequest, reverse); err != nil {
-				reporter.error = writeResponseErrors(err, w)
+	}
+	if h.Caching != nil {
+		log.Println(h.schemaDocument)
+		cachingRequest := newCachingRequest(r, h.schemaDocument, h.schema, gqlRequests)
+		reverse := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+			return h.ReverseProxy.ServeHTTP(w, r, n)
+		})
 
-				return
-			}
+		if err = h.Caching.HandleRequest(w, cachingRequest, reverse); err != nil {
+			reporter.error = writeResponseErrors(err, w)
 
 			return
 		}
-	}
 
+		return
+	}
 	reporter.error = h.ReverseProxy.ServeHTTP(w, r, n)
 }
 

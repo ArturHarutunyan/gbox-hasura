@@ -12,7 +12,6 @@ import (
 	"github.com/jensneuse/graphql-go-tools/pkg/astparser"
 	"github.com/jensneuse/graphql-go-tools/pkg/astprinter"
 	"github.com/jensneuse/graphql-go-tools/pkg/graphql"
-	"github.com/jensneuse/graphql-go-tools/pkg/operationreport"
 	"github.com/jensneuse/graphql-go-tools/pkg/pool"
 )
 
@@ -51,22 +50,22 @@ func newCachingPlanner(r *cachingRequest, c *Caching) (*cachingPlanner, error) {
 
 	hash.Write([]byte(fmt.Sprintf("schema=%d; ", schemaHash)))
 
-	gqlRequestClone := *r.gqlRequest
+	gqlRequestsClone := *r.gqlRequest
 	documentBuffer := bufferPool.Get().(*bytes.Buffer)
 	defer bufferPool.Put(documentBuffer)
 	documentBuffer.Reset()
+	for _, gqlRequestClone := range gqlRequestsClone {
+		if _, err = gqlRequestClone.Print(documentBuffer); err != nil {
+			return nil, err
+		}
 
-	if _, err = gqlRequestClone.Print(documentBuffer); err != nil {
-		return nil, err
+		document, _ := astparser.ParseGraphqlDocumentBytes(documentBuffer.Bytes())
+		gqlRequestClone.Query, _ = astprinter.PrintString(&document, nil)
+
+		if err = json.NewEncoder(hash).Encode(gqlRequestClone); err != nil {
+			return nil, err
+		}
 	}
-
-	document, _ := astparser.ParseGraphqlDocumentBytes(documentBuffer.Bytes())
-	gqlRequestClone.Query, _ = astprinter.PrintString(&document, nil)
-
-	if err = json.NewEncoder(hash).Encode(gqlRequestClone); err != nil {
-		return nil, err
-	}
-
 	return &cachingPlanner{
 		caching:       c,
 		request:       r,
@@ -175,8 +174,8 @@ func (p *cachingPlanner) computePlan() (*cachingPlan, error) {
 
 	plan.VariesHash = variesHash
 	requestFieldTypes := make(graphql.RequestTypes)
-	extractor := graphql.NewExtractor()
-	extractor.ExtractFieldsFromRequest(p.request.gqlRequest, p.request.schema, &operationreport.Report{}, requestFieldTypes)
+	//extractor := graphql.NewExtractor()
+	//extractor.ExtractFieldsFromRequest(p.request.gqlRequest, p.request.schema, &operationreport.Report{}, requestFieldTypes)
 
 	for _, rule := range p.caching.Rules {
 		if !p.matchRule(requestFieldTypes, rule) {

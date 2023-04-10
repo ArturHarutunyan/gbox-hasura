@@ -57,7 +57,7 @@ type Metrics struct {
 }
 
 type cachingMetrics interface {
-	addMetricsCaching(*graphql.Request, CachingStatus)
+	addMetricsCaching(*[]graphql.Request, CachingStatus)
 }
 
 func (h *Handler) addMetricsBeginRequest(request *graphql.Request) {
@@ -84,15 +84,17 @@ func (h *Handler) addMetricsEndRequest(request *graphql.Request, d time.Duration
 	h.metrics.operationDuration.With(labels).Observe(d.Seconds())
 }
 
-func (h *Handler) addMetricsCaching(request *graphql.Request, status CachingStatus) {
-	labels, err := h.metricsCachingLabels(request, status)
-	if err != nil {
-		h.logger.Warn("fail to get metrics caching labels", zap.Error(err))
+func (h *Handler) addMetricsCaching(requests *[]graphql.Request, status CachingStatus) {
+	for _, request := range *requests {
+		labels, err := h.metricsCachingLabels(&request, status)
+		if err != nil {
+			h.logger.Warn("fail to get metrics caching labels", zap.Error(err))
 
-		return
+			return
+		}
+		h.metrics.cachingCount.With(labels).Inc()
 	}
 
-	h.metrics.cachingCount.With(labels).Inc()
 }
 
 func (h *Handler) metricsCachingLabels(request *graphql.Request, status CachingStatus) (map[string]string, error) {

@@ -60,7 +60,7 @@ func (r *mutationResolver) PurgeType(ctx context.Context, typeArg string) (bool,
 	return true, nil
 }
 
-func (r *queryResolver) Dummy(ctx context.Context) (string, error) {
+func (r *queryResolver) Dummy(_ context.Context) (string, error) {
 	return "no query fields exists", nil
 }
 

@@ -10,7 +10,7 @@ import (
 	"github.com/gbox-proxy/gbox/internal/testserver/model"
 )
 
-func (r *mutationTestResolver) UpdateUsers(ctx context.Context) ([]*model.UserTest, error) {
+func (r *mutationTestResolver) UpdateUsers(_ context.Context) ([]*model.UserTest, error) {
 	return []*model.UserTest{
 		{
 			ID:   1,
@@ -40,7 +40,7 @@ func (r *mutationTestResolver) UpdateUsers(ctx context.Context) ([]*model.UserTe
 	}, nil
 }
 
-func (r *queryTestResolver) Users(ctx context.Context) ([]*model.UserTest, error) {
+func (r *queryTestResolver) Users(_ context.Context) ([]*model.UserTest, error) {
 	return []*model.UserTest{
 		{
 			ID:   1,
@@ -79,7 +79,7 @@ func (r *queryTestResolver) Users(ctx context.Context) ([]*model.UserTest, error
 	}, nil
 }
 
-func (r *queryTestResolver) Books(ctx context.Context) ([]*model.BookTest, error) {
+func (r *queryTestResolver) Books(_ context.Context) ([]*model.BookTest, error) {
 	return []*model.BookTest{
 		{
 			ID:    1,
