@@ -86,6 +86,8 @@ func (h *Handler) GraphQLOverWebsocketHandle(w http.ResponseWriter, r *http.Requ
 
 // GraphQLHandle ensure GraphQL request is safe before forwarding to upstream and caching query result of it.
 func (h *Handler) GraphQLHandle(w http.ResponseWriter, r *http.Request) {
+	w.Header().Del("Access-Control-Allow-Origin")
+	w.Header().Del("Access-Control-Allow-Credentials")
 	reporter := r.Context().Value(errorReporterCtxKey).(*errorReporter)
 
 	if err := h.rewriteHandle(w, r); err != nil {
