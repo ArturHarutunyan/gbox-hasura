@@ -66,9 +66,10 @@ type User {
 	gqlRequest := &graphql.Request{
 		Query: `query GetUsers { users { name } }`,
 	}
-	gqlRequest.Normalize(s)
 
-	cr := newCachingRequest(r, &d, s, gqlRequest)
+	gqlRequest.Normalize(s)
+	gqlRequests := []graphql.Request{*gqlRequest}
+	cr := newCachingRequest(r, &d, s, &gqlRequests)
 
 	return cr
 }

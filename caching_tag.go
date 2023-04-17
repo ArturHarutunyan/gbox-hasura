@@ -171,7 +171,7 @@ func (c *cachingTagAnalyzer) AnalyzeResult(result []byte, onlyTypes map[string]s
 
 	schemaHash, _ := c.request.schema.Hash()
 	schemaHashTag := fmt.Sprintf(cachingTagSchemaHashPattern, schemaHash)
-	for _, request := range *c.request.gqlRequest {
+	for _, request := range *c.request.gqlRequests {
 		operationTag := fmt.Sprintf(cachingTagOperationPattern, request.OperationName)
 		tags[schemaHashTag] = struct{}{}
 		tags[operationTag] = struct{}{}

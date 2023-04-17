@@ -22,7 +22,7 @@ func (c *Caching) HandleRequest(w http.ResponseWriter, r *cachingRequest, h cadd
 	// Remove `accept-encoding` header to prevent response body encoded when forward request to upstream
 	// encode directive had read this header, safe to delete it.
 	r.httpRequest.Header.Del("accept-encoding")
-	for _, request := range *r.gqlRequest {
+	for _, request := range *r.gqlRequests {
 		operationType, _ := request.OperationType()
 
 		// nolint:exhaustive
@@ -49,7 +49,7 @@ func (c *Caching) handleQueryRequest(w http.ResponseWriter, r *cachingRequest, h
 	}
 
 	status, result := c.resolvePlan(r, plan)
-	defer c.addMetricsCaching(r.gqlRequest, status)
+	defer c.addMetricsCaching(r.gqlRequests, status)
 
 	switch status {
 	case CachingStatusMiss:

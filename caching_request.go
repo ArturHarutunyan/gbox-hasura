@@ -13,7 +13,7 @@ import (
 type cachingRequest struct {
 	httpRequest           *http.Request
 	schema                *graphql.Schema
-	gqlRequest            *[]graphql.Request
+	gqlRequests           *[]graphql.Request
 	definition, operation *ast.Document
 	cacheControl          *cacheobject.RequestCacheDirectives
 }
@@ -23,7 +23,7 @@ func newCachingRequest(r *http.Request, d *ast.Document, s *graphql.Schema, gr *
 		httpRequest: r,
 		schema:      s,
 		definition:  d,
-		gqlRequest:  gr,
+		gqlRequests: gr,
 	}
 
 	cacheControlString := r.Header.Get("cache-control")
@@ -37,7 +37,7 @@ func (r *cachingRequest) initOperation() error {
 		return nil
 	}
 
-	for _, request := range *r.gqlRequest {
+	for _, request := range *r.gqlRequests {
 		operation, report := astparser.ParseGraphqlDocumentString(request.Query)
 
 		if report.HasErrors() {

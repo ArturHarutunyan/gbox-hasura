@@ -50,7 +50,7 @@ func newCachingPlanner(r *cachingRequest, c *Caching) (*cachingPlanner, error) {
 
 	hash.Write([]byte(fmt.Sprintf("schema=%d; ", schemaHash)))
 
-	gqlRequestsClone := *r.gqlRequest
+	gqlRequestsClone := *r.gqlRequests
 	documentBuffer := bufferPool.Get().(*bytes.Buffer)
 	defer bufferPool.Put(documentBuffer)
 	documentBuffer.Reset()
