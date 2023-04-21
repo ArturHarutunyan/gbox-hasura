@@ -231,6 +231,8 @@ mainLoop:
 }
 
 func (p *cachingPlanner) calcQueryResultCacheKey(plan *cachingPlan) (string, error) {
+
+	var buffString string
 	hash := pool.Hash64.Get()
 	defer pool.Hash64.Put(hash)
 	hash.Reset()
@@ -247,7 +249,12 @@ func (p *cachingPlanner) calcQueryResultCacheKey(plan *cachingPlan) (string, err
 		}
 
 		for _, name := range vary.Headers {
-			buffString := fmt.Sprintf("header:%s=%s;", name, r.Header.Get(name))
+			val, ok := p.request.UserInfo[name]
+			if !ok {
+				buffString = fmt.Sprintf("header:%s=%s;", name, r.Header.Get(name))
+			} else {
+				buffString = fmt.Sprintf("header:%s=%s;", name, val)
+			}
 
 			if _, err := hash.Write([]byte(buffString)); err != nil {
 				return "", err

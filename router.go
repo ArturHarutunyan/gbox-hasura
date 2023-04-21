@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -120,8 +119,7 @@ func (h *Handler) GraphQLHandle(w http.ResponseWriter, r *http.Request) {
 
 	}
 	if h.Caching != nil {
-		log.Println(h.schemaDocument)
-		cachingRequest := newCachingRequest(r, h.schemaDocument, h.schema, gqlRequests)
+		cachingRequest := newCachingRequest(r, h.schemaDocument, h.schema, gqlRequests, h.Caching.JWTKey)
 		reverse := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 			return h.ReverseProxy.ServeHTTP(w, r, n)
 		})

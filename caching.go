@@ -44,7 +44,7 @@ type Caching struct {
 	// if `updateUser` field have type User and id returning in example above is 1, all cache results of user id 1 will be purged.
 	// If not set default value of it will be `id` for all types.
 	TypeKeys graphql.RequestTypes `json:"type_keys,omitempty"`
-
+	JWTKey   string               `json:"jwt_key,omitempty"`
 	// Auto invalidate query result cached by mutation result type keys
 	// Example: if you had cached query result of User type, when you make mutation query and result
 	// of this query have type User with id's 3, all cached query result related with id 3 of User type will be purged.

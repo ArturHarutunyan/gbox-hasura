@@ -39,6 +39,17 @@ func (h *Handler) unmarshalCaddyfileCaching(d *caddyfile.Dispenser) error {
 				}
 
 				caching.StoreDsn = d.Val()
+			case "jwt_key":
+				if !d.NextArg() {
+					return d.ArgErr()
+				}
+
+				_, err := url.Parse(d.Val())
+				if err != nil {
+					return err
+				}
+
+				caching.JWTKey = d.Val()
 			case "rules":
 				if err := caching.unmarshalCaddyfileRules(d.NewFromNextSegment()); err != nil {
 					return err

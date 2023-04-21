@@ -69,7 +69,7 @@ type User {
 
 	gqlRequest.Normalize(s)
 	gqlRequests := []graphql.Request{*gqlRequest}
-	cr := newCachingRequest(r, &d, s, &gqlRequests)
+	cr := newCachingRequest(r, &d, s, &gqlRequests, "")
 
 	return cr
 }
