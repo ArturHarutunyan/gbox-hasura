@@ -20,8 +20,9 @@ func TestCachingTagAnalyzer_AnalyzeResult_WithoutTypeKeys(t *testing.T) {
 	require.Equal(t, []string{fmt.Sprintf(cachingTagSchemaHashPattern, sh)}, tags.SchemaHash().ToSlice())
 	require.Equal(t, tags.TypeFields().ToSlice(), []string{"field:Query:users", "field:User:name"})
 	require.Equal(t, tags.TypeKeys().ToSlice(), []string{})
+
 	for _, request := range *cr.gqlRequests {
-		require.Equal(t, tags.Operation().ToSlice(), []string{fmt.Sprintf(cachingTagOperationPattern, request)})
+		require.Equal(t, tags.Operation().ToSlice(), []string{fmt.Sprintf(cachingTagOperationPattern, request.OperationName)})
 	}
 }
 

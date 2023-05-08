@@ -36,7 +36,10 @@ route {
     basicauth @admin_auth bcrypt {
         {$GBOX_ADMIN_USERNAME:gbox} {$GBOX_ADMIN_PASSWORD:JDJhJDE0JHBXUk5YMjVRYlRtTjN3SERiU0Rrei4uMW4ub0FhaHZlY0hnbWtBMUNSLnhmeEUuUDVOOW5l}
     }
-
+    header {
+        X-Frame-Options DENY
+        X-Content-Type-Options: nosiff
+    }
     gbox {
         upstream {$GBOX_UPSTREAM} {
             {$GBOX_UPSTREAM_REVERSE_PROXY_DIRECTIVES}
