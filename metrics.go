@@ -72,16 +72,18 @@ func (h *Handler) addMetricsBeginRequest(request *graphql.Request) {
 	h.metrics.operationInFlight.With(labels).Inc()
 }
 
-func (h *Handler) addMetricsEndRequest(request *graphql.Request, d time.Duration) {
-	labels, err := h.metricsOperationLabels(request)
-	if err != nil {
-		h.logger.Warn("fail to get metrics operation labels", zap.Error(err))
+func (h *Handler) addMetricsEndRequest(requests *[]graphql.Request, d time.Duration) {
+	for _, request := range *requests {
+		labels, err := h.metricsOperationLabels(&request)
+		if err != nil {
+			h.logger.Warn("fail to get metrics operation labels", zap.Error(err))
 
-		return
+			return
+		}
+
+		h.metrics.operationInFlight.With(labels).Dec()
+		h.metrics.operationDuration.With(labels).Observe(d.Seconds())
 	}
-
-	h.metrics.operationInFlight.With(labels).Dec()
-	h.metrics.operationDuration.With(labels).Observe(d.Seconds())
 }
 
 func (h *Handler) addMetricsCaching(requests *[]graphql.Request, status CachingStatus) {

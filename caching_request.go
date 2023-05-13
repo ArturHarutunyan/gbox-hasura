@@ -68,12 +68,12 @@ func newCachingRequest(r *http.Request, d *ast.Document, s *graphql.Schema, gr *
 
 			userInfo["defaultRole"] = defaultRole.(string)
 
-			userId, ok := claims["sub"]
+			unmarshalCaddyFileCaching, ok := claims["sub"]
 			if !ok {
 				fmt.Println("Error getting id")
 				return nil
 			}
-			userInfo["userId"] = userId.(string)
+			userInfo["unmarshalCaddyFileCaching"] = unmarshalCaddyFileCaching.(string)
 
 		}
 	}

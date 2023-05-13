@@ -6,16 +6,17 @@ require (
 	github.com/99designs/gqlgen v0.17.2
 	github.com/caddyserver/caddy/v2 v2.5.0
 	github.com/coocood/freecache v1.2.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eko/gocache/v2 v2.3.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gobwas/ws v1.0.4
-	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jensneuse/graphql-go-tools v1.51.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/cachecontrol v0.1.0
 	github.com/prometheus/client_golang v1.12.1
 	github.com/prometheus/client_model v0.2.0
+	github.com/rs/cors v1.8.3
 	github.com/stretchr/testify v1.7.1
 	github.com/vektah/gqlparser/v2 v2.4.0
 	go.uber.org/zap v1.21.0
@@ -49,7 +50,6 @@ require (
 	github.com/dgraph-io/badger v1.6.2 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
@@ -120,7 +120,6 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/qri-io/jsonpointer v0.1.1 // indirect
 	github.com/qri-io/jsonschema v0.2.1 // indirect
-	github.com/rs/cors v1.8.3 // indirect
 	github.com/rs/xid v1.2.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
@@ -163,8 +162,8 @@ require (
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/term v0.8.0 // indirect
 	golang.org/x/text v0.3.8-0.20211004125949-5bd84dd9b33b // indirect
 	golang.org/x/tools v0.1.9 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

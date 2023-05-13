@@ -14,34 +14,15 @@ linters-settings:
     statements: 50
 
 linters:
-  enable-all: true
-  disable:
-    - gocognit
-    - containedctx
+  disable-all: true
+  enable:
     - errcheck
-    - lll
-    - wsl
-    - gomnd
-    - testpackage
-    - exhaustivestruct
-    - paralleltest
-    - cyclop
-    - forcetypeassert
-    - tagliatelle
-    - varnamelen
-    - wrapcheck
-    - goerr113
-    - gochecknoglobals
-    - execinquery
-    - exhaustruct
-    - nonamedreturns
-
-    # deprecated
-    - interfacer
-    - maligned
-    - scopelint
-    - golint
-
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    
 issues:
   exclude-rules:
     - path: _test\.go

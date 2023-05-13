@@ -113,11 +113,11 @@ func (h *Handler) GraphQLHandle(w http.ResponseWriter, r *http.Request) {
 		}
 
 		h.addMetricsBeginRequest(&gqlRequest)
-		defer func(startedAt time.Time) {
-			h.addMetricsEndRequest(&gqlRequest, time.Since(startedAt))
-		}(time.Now())
 
 	}
+	defer func(startedAt time.Time) {
+		h.addMetricsEndRequest(gqlRequests, time.Since(startedAt))
+	}(time.Now())
 	if h.Caching != nil {
 		cachingRequest := newCachingRequest(r, h.schemaDocument, h.schema, gqlRequests, h.Caching.JWTKey)
 		reverse := caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {

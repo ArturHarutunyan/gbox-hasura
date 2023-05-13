@@ -34,7 +34,9 @@ func (h *Handler) onWsSubscribe(r *graphql.Request) (err error) {
 }
 
 func (h *Handler) onWsClose(r *graphql.Request, d time.Duration) {
-	h.addMetricsEndRequest(r, d)
+	var requests []graphql.Request
+	requests = append(requests, *r)
+	h.addMetricsEndRequest(&requests, d)
 }
 
 type wsResponseWriter struct {
@@ -117,8 +119,15 @@ func (c *wsConn) Read(b []byte) (n int, err error) {
 		}
 
 		if e = c.onWsSubscribe(request); e != nil {
-			c.writeErrorMessage(msg.ID, e)
-			c.writeCompleteMessage(msg.ID)
+			err = c.writeErrorMessage(msg.ID, e)
+			if err != nil {
+				return n, err
+			}
+
+			err = c.writeCompleteMessage(msg.ID)
+			if err != nil {
+				return n, err
+			}
 
 			return n, io.EOF
 		}
