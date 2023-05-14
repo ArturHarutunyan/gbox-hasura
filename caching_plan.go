@@ -12,6 +12,7 @@ import (
 	"github.com/jensneuse/graphql-go-tools/pkg/astparser"
 	"github.com/jensneuse/graphql-go-tools/pkg/astprinter"
 	"github.com/jensneuse/graphql-go-tools/pkg/graphql"
+	"github.com/jensneuse/graphql-go-tools/pkg/operationreport"
 	"github.com/jensneuse/graphql-go-tools/pkg/pool"
 )
 
@@ -174,9 +175,10 @@ func (p *cachingPlanner) computePlan() (*cachingPlan, error) {
 
 	plan.VariesHash = variesHash
 	requestFieldTypes := make(graphql.RequestTypes)
-	//extractor := graphql.NewExtractor()
-	//extractor.ExtractFieldsFromRequest(p.request.gqlRequest, p.request.schema, &operationreport.Report{}, requestFieldTypes)
-
+	for _, request := range *p.request.gqlRequests {
+		extractor := graphql.NewExtractor()
+		extractor.ExtractFieldsFromRequest(&request, p.request.schema, &operationreport.Report{}, requestFieldTypes)
+	}
 	for _, rule := range p.caching.Rules {
 		if !p.matchRule(requestFieldTypes, rule) {
 			continue

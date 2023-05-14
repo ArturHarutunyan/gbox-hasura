@@ -150,7 +150,7 @@ caching {
 	r, _ := http.NewRequest(
 		"POST",
 		"http://localhost:9090/graphql",
-		strings.NewReader(`{"query": "query UsersNameOnly { users { name } }"}`),
+		strings.NewReader(`{"query": "query UsersNameOnly { users { name } }", "operationName":"UsersNameOnly"}`),
 	)
 	r.Header.Add("content-type", "application/json")
 	resp := tester.AssertResponseCode(r, http.StatusOK)
@@ -178,7 +178,7 @@ caching {
 		r, _ := http.NewRequest(
 			"POST",
 			"http://localhost:9090/graphql",
-			strings.NewReader(`{"query": "query UsersNameOnly { users(invalid_filter: 123) { name } }"}`),
+			strings.NewReader(`{"query": "query UsersNameOnly { users(invalid_filter: 123) { name } }","operationName":"UsersNameOnly"}`),
 		)
 		r.Header.Add("content-type", "application/json")
 		resp := tester.AssertResponseCode(r, http.StatusUnprocessableEntity)
@@ -402,9 +402,9 @@ caching {
 }
 
 func (s *HandlerIntegrationTestSuite) TestCachingEnabledAutoInvalidate() {
-	const payloadNameOnly = `{"query": "query UsersNameOnly { users { name } }"}`
-	const payload = `{"query": "query Users { users { id name } }"}`
-	const mutationPayload = `{"query": "mutation InvalidateUsers { updateUsers { id } }"}`
+	const payloadNameOnly = `{"query": "query UsersNameOnly { users { name } }", "operationName":"UsersNameOnly" }`
+	const payload = `{"query": "query Users { users { id name } }", "operationName" : "Users"}`
+	const mutationPayload = `{"query": "mutation InvalidateUsers { updateUsers { id } }", "operationName":"InvalidateUsers"}`
 	testCases := []struct {
 		name                  string
 		expectedHitTimes      string
@@ -505,8 +505,8 @@ caching {
 }
 
 func (s *HandlerIntegrationTestSuite) TestCachingDisabledAutoInvalidate() {
-	const payload = `{"query": "query Users { users { id name } }"}`
-	const mutationPayload = `{"query": "mutation InvalidateUsers { updateUsers { id } }"}`
+	const payload = `{"query": "query Users { users { id name } }","operationName":"Users"}`
+	const mutationPayload = `{"query": "mutation InvalidateUsers { updateUsers { id } }", "operationName":"InvalidateUsers"}`
 	testCases := []struct {
 		name                  string
 		expectedHitTimes      string
@@ -876,7 +876,7 @@ caching {
 		br, _ := http.NewRequest(
 			"POST",
 			"http://localhost:9090/graphql",
-			strings.NewReader(`{"query":"query GetBooksMetric { books { title } }"}`),
+			strings.NewReader(`{"query":"query GetBooksMetric { books { title } }", "operationName": "GetBooksMetric" }`),
 		)
 		br.Header.Add("content-type", "application/json")
 		resp := tester.AssertResponseCode(br, http.StatusOK)
@@ -885,7 +885,7 @@ caching {
 		ur, _ := http.NewRequest(
 			"POST",
 			"http://localhost:9090/graphql",
-			strings.NewReader(`{"query":"query GetUsersMetric { users { name } }"}`),
+			strings.NewReader(`{"query":"query GetUsersMetric { users { name } }", "operationName":"GetUsersMetric"}`),
 		)
 		ur.Header.Add("content-type", "application/json")
 		resp = tester.AssertResponseCode(ur, http.StatusOK)
@@ -909,6 +909,7 @@ caching {
 
 		s.Require().NoError(cme)
 		s.Require().NoError(cm.Write(&metricOut))
+
 		s.Require().Equal(float64(1), *metricOut.Counter.Value, "unexpected cache miss metrics")
 
 		ch, che := metrics.cachingCount.GetMetricWith(prometheus.Labels{
@@ -982,7 +983,7 @@ caching {
 		r, _ := http.NewRequest(
 			"POST",
 			"http://localhost:9090/graphql",
-			strings.NewReader(`{"query":"query GetBooks { books { title id } }"}`),
+			strings.NewReader(`{"query":"query GetBooks { books { title id } }", "operationName" : "GetBooks" }`),
 		)
 		r.Header.Add("content-type", "application/json")
 		resp := tester.AssertResponseCode(r, http.StatusOK)
@@ -1001,7 +1002,7 @@ caching {
 			r, _ := http.NewRequest(
 				"POST",
 				"http://localhost:9090/graphql",
-				strings.NewReader(`{"query":"query GetUsers { users { id name } }"}`),
+				strings.NewReader(`{"query":"query GetUsers { users { id name } }", "operationName":"GetUsers"}`),
 			)
 			r.Header.Add("content-type", "application/json")
 			resp := tester.AssertResponseCode(r, http.StatusOK)
@@ -1134,7 +1135,7 @@ caching {
 		r, _ := http.NewRequest(
 			"POST",
 			"http://localhost:9090/graphql",
-			strings.NewReader(`{"query":"query GetUsers { users { name } }"}`),
+			strings.NewReader(`{"query":"query GetUsers { users { name } }", "operationName":"GetUsers"}`),
 		)
 		r.Header.Set("content-type", "application/json")
 		r.Header.Set("cache-control", testCase.cc)
