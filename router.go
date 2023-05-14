@@ -171,11 +171,11 @@ func (h *Handler) unmarshalHTTPRequest(r *http.Request) (*[]graphql.Request, err
 }
 
 func (h *Handler) validateGraphqlRequest(r *graphql.Request) error {
-	// isIntrospectQuery, _ := r.IsIntrospectionQuery()
+	isIntrospectQuery, _ := r.IsIntrospectionQuery()
 
-	// if isIntrospectQuery && h.DisabledIntrospection {
-	// 	return ErrNotAllowIntrospectionQuery
-	// }
+	if isIntrospectQuery && h.DisabledIntrospection {
+		return ErrNotAllowIntrospectionQuery
+	}
 
 	if h.Complexity != nil {
 		requestErrors := h.Complexity.validateRequest(h.schema, r)
